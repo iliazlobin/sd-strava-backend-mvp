@@ -1,6 +1,9 @@
 # Strava MVP — Design
 
-> Full system design: [System Design: Strava (v3)](https://app.notion.com/p/System-Design-Strava-v2-38ad865005a881148120f7c05f68267a)
+> This is the MVP cut of a larger Strava system design. The full target adds a Kafka GPS
+> ingestion pipeline, an S3 / Parquet data lake, H3 + DTW segment matching, a Redis feed cache,
+> ScyllaDB leaderboards, and the social graph; this build is the smallest slice that proves the
+> activity → segment → leaderboard → kudos loop end to end.
 
 ## Architecture
 
