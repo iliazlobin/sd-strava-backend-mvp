@@ -6,7 +6,6 @@ Missing name → 422.
 
 from verify.acceptance.conftest import assert_201, assert_422
 
-
 VALID_SEGMENT = {
     "name": "Baker Street Hill Climb",
     "polyline": [

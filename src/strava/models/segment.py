@@ -1,7 +1,7 @@
 """Segment model — a named route section for competition."""
 
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from sqlalchemy import CheckConstraint, DateTime, Double, Integer, Text
 from sqlalchemy.dialects.postgresql import JSONB, UUID
@@ -12,9 +12,7 @@ from strava.database import Base
 
 class Segment(Base):
     __tablename__ = "segments"
-    __table_args__ = (
-        CheckConstraint("distance_m >= 0", name="ck_segments_distance_m"),
-    )
+    __table_args__ = (CheckConstraint("distance_m >= 0", name="ck_segments_distance_m"),)
 
     segment_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
@@ -26,5 +24,5 @@ class Segment(Base):
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         nullable=False,
-        default=lambda: datetime.now(timezone.utc),
+        default=lambda: datetime.now(UTC),
     )

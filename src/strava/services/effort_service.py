@@ -3,19 +3,17 @@
 from uuid import UUID
 
 from fastapi import HTTPException
-from sqlalchemy import select, text, update
+from sqlalchemy import select, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from strava.models.segment_effort import SegmentEffort
-from strava.models.segment import Segment
 from strava.models.activity import Activity
+from strava.models.segment import Segment
+from strava.models.segment_effort import SegmentEffort
 from strava.schemas.effort import EffortCreate, EffortResponse
 
 
-async def create_effort(
-    session: AsyncSession, payload: EffortCreate
-) -> EffortResponse:
+async def create_effort(session: AsyncSession, payload: EffortCreate) -> EffortResponse:
     """Record a segment effort.
 
     Validates activity and segment exist (404 if not).
@@ -30,9 +28,7 @@ async def create_effort(
         raise HTTPException(status_code=404, detail="Activity not found")
 
     # Verify segment exists
-    result = await session.execute(
-        select(Segment).where(Segment.segment_id == payload.segment_id)
-    )
+    result = await session.execute(select(Segment).where(Segment.segment_id == payload.segment_id))
     if result.scalar_one_or_none() is None:
         raise HTTPException(status_code=404, detail="Segment not found")
 
@@ -55,17 +51,15 @@ async def create_effort(
         await session.refresh(effort)
         await session.commit()
         return EffortResponse.model_validate(effort)
-    except IntegrityError:
+    except IntegrityError as e:
         await session.rollback()
         raise HTTPException(
             status_code=409,
             detail="Effort already exists for this activity and segment",
-        )
+        ) from e
 
 
-async def get_leaderboard(
-    session: AsyncSession, segment_id: UUID, limit: int
-) -> list[dict]:
+async def get_leaderboard(session: AsyncSession, segment_id: UUID, limit: int) -> list[dict]:
     """Get the top-N leaderboard for a segment, ordered by elapsed_time ASC.
 
     Tiebreaker: created_at ASC (earliest effort = higher rank).
@@ -87,10 +81,12 @@ async def get_leaderboard(
 
     leaderboard = []
     for rank, effort in enumerate(efforts, start=1):
-        leaderboard.append({
-            "rank": rank,
-            "user_id": str(effort.user_id),
-            "activity_id": str(effort.activity_id),
-            "elapsed_time": effort.elapsed_time,
-        })
+        leaderboard.append(
+            {
+                "rank": rank,
+                "user_id": str(effort.user_id),
+                "activity_id": str(effort.activity_id),
+                "elapsed_time": effort.elapsed_time,
+            }
+        )
     return leaderboard

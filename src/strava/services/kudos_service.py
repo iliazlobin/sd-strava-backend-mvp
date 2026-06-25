@@ -3,17 +3,15 @@
 from uuid import UUID
 
 from fastapi import HTTPException
-from sqlalchemy import select, update, text
+from sqlalchemy import select, text, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from strava.models.kudos import Kudos
 from strava.models.activity import Activity
+from strava.models.kudos import Kudos
 from strava.schemas.kudos import KudosListEntry
 
 
-async def give_kudos(
-    session: AsyncSession, activity_id: UUID, user_id: UUID
-) -> tuple[str, int]:
+async def give_kudos(session: AsyncSession, activity_id: UUID, user_id: UUID) -> tuple[str, int]:
     """Give kudos to an activity.
 
     Returns (status, http_status_code):
@@ -25,9 +23,7 @@ async def give_kudos(
     kudos_count is incremented only on first kudos.
     """
     # Verify activity exists
-    result = await session.execute(
-        select(Activity).where(Activity.activity_id == activity_id)
-    )
+    result = await session.execute(select(Activity).where(Activity.activity_id == activity_id))
     if result.scalar_one_or_none() is None:
         raise HTTPException(status_code=404, detail="Activity not found")
 
@@ -57,24 +53,18 @@ async def give_kudos(
         return "already_exists", 200
 
 
-async def list_kudos(
-    session: AsyncSession, activity_id: UUID
-) -> list[KudosListEntry]:
+async def list_kudos(session: AsyncSession, activity_id: UUID) -> list[KudosListEntry]:
     """List all kudos for an activity, oldest first.
 
     Raises 404 if activity does not exist.
     """
     # Verify activity exists
-    result = await session.execute(
-        select(Activity).where(Activity.activity_id == activity_id)
-    )
+    result = await session.execute(select(Activity).where(Activity.activity_id == activity_id))
     if result.scalar_one_or_none() is None:
         raise HTTPException(status_code=404, detail="Activity not found")
 
     result = await session.execute(
-        select(Kudos)
-        .where(Kudos.activity_id == activity_id)
-        .order_by(Kudos.created_at.asc())
+        select(Kudos).where(Kudos.activity_id == activity_id).order_by(Kudos.created_at.asc())
     )
     kudos_list = result.scalars().all()
     return [KudosListEntry.model_validate(k) for k in kudos_list]

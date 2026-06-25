@@ -4,16 +4,18 @@ Revision ID: 001
 Revises: None
 Create Date: 2025-06-25
 """
-from typing import Sequence, Union
 
-from alembic import op
+from collections.abc import Sequence
+
 import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
 
+from alembic import op
+
 revision: str = "001"
-down_revision: Union[str, None] = None
-branch_labels: Union[str, Sequence[str], None] = None
-depends_on: Union[str, Sequence[str], None] = None
+down_revision: str | None = None
+branch_labels: str | Sequence[str] | None = None
+depends_on: str | Sequence[str] | None = None
 
 
 def upgrade() -> None:
@@ -180,9 +182,7 @@ def upgrade() -> None:
             nullable=False,
             server_default=sa.text("now()"),
         ),
-        sa.UniqueConstraint(
-            "activity_id", "segment_id", name="uq_efforts_activity_segment"
-        ),
+        sa.UniqueConstraint("activity_id", "segment_id", name="uq_efforts_activity_segment"),
     )
     op.create_check_constraint(
         "ck_efforts_elapsed_time",

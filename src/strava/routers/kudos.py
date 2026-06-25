@@ -1,4 +1,4 @@
-"""POST /activities/{activity_id}/kudos, GET /activities/{activity_id}/kudos — give and list kudos."""
+"""Kudos router — give and list kudos on an activity."""
 
 from uuid import UUID
 
@@ -6,7 +6,7 @@ from fastapi import APIRouter, Depends, Response
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from strava.database import get_db
-from strava.schemas.kudos import KudosRequest, KudosResponse, KudosListEntry
+from strava.schemas.kudos import KudosListEntry, KudosRequest, KudosResponse
 from strava.services import kudos_service
 
 router = APIRouter()
@@ -19,9 +19,7 @@ async def give_kudos(
     session: AsyncSession = Depends(get_db),
 ):
     """Give kudos to an activity. Idempotent: 201 first time, 200 thereafter."""
-    status, http_code = await kudos_service.give_kudos(
-        session, activity_id, payload.user_id
-    )
+    status, http_code = await kudos_service.give_kudos(session, activity_id, payload.user_id)
     return Response(
         status_code=http_code,
         content=KudosResponse(status=status).model_dump_json(),

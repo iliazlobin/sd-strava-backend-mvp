@@ -4,7 +4,7 @@ AC-7: POST /activities/{id}/kudos → 201 (first time). Same user+activity again
 Missing activity → 404. GET /activities/{id}/kudos → 200 + list.
 """
 
-from verify.acceptance.conftest import assert_json_200, assert_404, assert_422, assert_201
+from verify.acceptance.conftest import assert_201, assert_404, assert_422, assert_json_200
 
 
 def _create_user(client, name="Runner"):
@@ -12,14 +12,19 @@ def _create_user(client, name="Runner"):
 
 
 def _create_activity(client, user_id):
-    return assert_201(client.post("/activities", json={
-        "user_id": user_id,
-        "sport_type": "run",
-        "start_time": "2025-06-25T08:00:00Z",
-        "elapsed_time": 1800,
-        "distance_m": 5000.0,
-        "polyline": [[40.71, -74.00, 10.0, 1719907200]],
-    }))["activity_id"]
+    return assert_201(
+        client.post(
+            "/activities",
+            json={
+                "user_id": user_id,
+                "sport_type": "run",
+                "start_time": "2025-06-25T08:00:00Z",
+                "elapsed_time": 1800,
+                "distance_m": 5000.0,
+                "polyline": [[40.71, -74.00, 10.0, 1719907200]],
+            },
+        )
+    )["activity_id"]
 
 
 def test_give_kudos_first_time_201(client):
@@ -66,10 +71,12 @@ def test_give_kudos_multiple_users(client):
 def test_give_kudos_missing_activity_404(client):
     """POST /activities/{id}/kudos with non-existent activity → 404."""
     u = _create_user(client, "Alice")
-    assert_404(client.post(
-        "/activities/00000000-0000-0000-0000-000000000000/kudos",
-        json={"user_id": u["user_id"]},
-    ))
+    assert_404(
+        client.post(
+            "/activities/00000000-0000-0000-0000-000000000000/kudos",
+            json={"user_id": u["user_id"]},
+        )
+    )
 
 
 def test_give_kudos_missing_user_id_422(client):

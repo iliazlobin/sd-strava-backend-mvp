@@ -10,9 +10,7 @@ from strava.models.segment import Segment
 from strava.schemas.segment import SegmentCreate, SegmentResponse
 
 
-async def create_segment(
-    session: AsyncSession, payload: SegmentCreate
-) -> UUID:
+async def create_segment(session: AsyncSession, payload: SegmentCreate) -> UUID:
     """Create a new segment. Returns the segment_id."""
     segment = Segment(
         name=payload.name,
@@ -25,13 +23,9 @@ async def create_segment(
     return segment.segment_id
 
 
-async def get_segment(
-    session: AsyncSession, segment_id: UUID
-) -> SegmentResponse:
+async def get_segment(session: AsyncSession, segment_id: UUID) -> SegmentResponse:
     """Fetch a segment by ID. Raises 404 if not found."""
-    result = await session.execute(
-        select(Segment).where(Segment.segment_id == segment_id)
-    )
+    result = await session.execute(select(Segment).where(Segment.segment_id == segment_id))
     segment = result.scalar_one_or_none()
     if segment is None:
         raise HTTPException(status_code=404, detail="Segment not found")

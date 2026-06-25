@@ -15,9 +15,7 @@ class Settings(BaseSettings):
         extra="ignore",
     )
 
-    database_url: str = (
-        "postgresql+asyncpg://postgres:postgres@localhost:5432/strava"
-    )
+    database_url: str = "postgresql+asyncpg://postgres:postgres@localhost:5432/strava"
     app_port: int = 8000
     host: str = "0.0.0.0"
     log_level: str = "info"

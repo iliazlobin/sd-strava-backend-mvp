@@ -10,9 +10,7 @@ from strava.models.activity import Activity
 from strava.schemas.activity import ActivityCreate, ActivityResponse
 
 
-async def create_activity(
-    session: AsyncSession, payload: ActivityCreate
-) -> UUID:
+async def create_activity(session: AsyncSession, payload: ActivityCreate) -> UUID:
     """Create a new activity. Returns the activity_id.
 
     Validates that the referenced user exists (404 if not).
@@ -39,13 +37,9 @@ async def create_activity(
     return activity.activity_id
 
 
-async def get_activity(
-    session: AsyncSession, activity_id: UUID
-) -> ActivityResponse:
+async def get_activity(session: AsyncSession, activity_id: UUID) -> ActivityResponse:
     """Fetch a full activity by ID. Raises 404 if not found."""
-    result = await session.execute(
-        select(Activity).where(Activity.activity_id == activity_id)
-    )
+    result = await session.execute(select(Activity).where(Activity.activity_id == activity_id))
     activity = result.scalar_one_or_none()
     if activity is None:
         raise HTTPException(status_code=404, detail="Activity not found")

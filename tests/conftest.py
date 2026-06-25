@@ -19,9 +19,11 @@ def isolated_settings() -> Generator[None, None, None]:
 @pytest_asyncio.fixture(loop_scope="function")
 async def client() -> AsyncGenerator[AsyncClient, None]:
     """Return an httpx AsyncClient bound to the FastAPI app with mocked DB."""
-    with patch("strava.main.check_db_health", new_callable=AsyncMock) as mock_check, \
-         patch("strava.main.init_db", new_callable=AsyncMock), \
-         patch("strava.main.dispose_db", new_callable=AsyncMock):
+    with (
+        patch("strava.main.check_db_health", new_callable=AsyncMock) as mock_check,
+        patch("strava.main.init_db", new_callable=AsyncMock),
+        patch("strava.main.dispose_db", new_callable=AsyncMock),
+    ):
         mock_check.return_value = True
         app = __import__("strava.main", fromlist=["create_app"]).create_app()
         transport = ASGITransport(app=app)

@@ -4,8 +4,7 @@ AC-2: GET /activities/{id} → 200 + full activity JSON.
 Non-existent ID → 404.
 """
 
-from verify.acceptance.conftest import assert_json_200, assert_404, assert_201
-
+from verify.acceptance.conftest import assert_201, assert_404, assert_json_200
 
 VALID_PAYLOAD = {
     "user_id": None,  # filled per test

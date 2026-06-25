@@ -5,9 +5,9 @@ via HTTP at API_BASE_URL.
 """
 
 import os
-import pytest
-import httpx
 
+import httpx
+import pytest
 
 API_BASE_URL = os.environ.get("API_BASE_URL", "http://localhost:8000")
 
@@ -37,11 +37,12 @@ def user_ids(client):
 
 # --- Helper assertions ---
 
+
 def assert_json_200(r, expected_status=200):
     """Assert status and return parsed JSON."""
-    assert r.status_code == expected_status, (
-        f"Expected {expected_status}, got {r.status_code}: {r.text}"
-    )
+    assert (
+        r.status_code == expected_status
+    ), f"Expected {expected_status}, got {r.status_code}: {r.text}"
     return r.json()
 
 
@@ -50,21 +51,15 @@ def assert_201(r):
 
 
 def assert_422(r):
-    assert r.status_code == 422, (
-        f"Expected 422, got {r.status_code}: {r.text}"
-    )
+    assert r.status_code == 422, f"Expected 422, got {r.status_code}: {r.text}"
     return r.json()
 
 
 def assert_404(r):
-    assert r.status_code == 404, (
-        f"Expected 404, got {r.status_code}: {r.text}"
-    )
+    assert r.status_code == 404, f"Expected 404, got {r.status_code}: {r.text}"
     return r.json()
 
 
 def assert_409(r):
-    assert r.status_code == 409, (
-        f"Expected 409, got {r.status_code}: {r.text}"
-    )
+    assert r.status_code == 409, f"Expected 409, got {r.status_code}: {r.text}"
     return r.json()

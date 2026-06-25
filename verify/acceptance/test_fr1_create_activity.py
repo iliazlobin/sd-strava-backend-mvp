@@ -5,8 +5,7 @@ Missing required field (sport_type) → 422.
 Non-existent user_id → 404.
 """
 
-from verify.acceptance.conftest import assert_201, assert_422, assert_404
-
+from verify.acceptance.conftest import assert_201, assert_404, assert_422
 
 VALID_PAYLOAD = {
     "user_id": None,  # filled per test

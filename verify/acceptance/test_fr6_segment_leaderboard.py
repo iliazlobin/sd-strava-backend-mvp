@@ -5,7 +5,7 @@ Each entry has rank, user_id, activity_id, elapsed_time.
 Missing segment → 404. Leaderboard respects tiebreaker (earliest effort = higher rank).
 """
 
-from verify.acceptance.conftest import assert_json_200, assert_404, assert_201
+from verify.acceptance.conftest import assert_201, assert_404, assert_json_200
 
 
 def _create_user(client, name="Runner"):
@@ -13,31 +13,46 @@ def _create_user(client, name="Runner"):
 
 
 def _create_activity(client, user_id: str, start_time="2025-06-25T08:00:00Z"):
-    return assert_201(client.post("/activities", json={
-        "user_id": user_id,
-        "sport_type": "run",
-        "start_time": start_time,
-        "elapsed_time": 1800,
-        "distance_m": 5000.0,
-        "polyline": [[40.71, -74.00, 10.0, 1719907200]],
-    }))["activity_id"]
+    return assert_201(
+        client.post(
+            "/activities",
+            json={
+                "user_id": user_id,
+                "sport_type": "run",
+                "start_time": start_time,
+                "elapsed_time": 1800,
+                "distance_m": 5000.0,
+                "polyline": [[40.71, -74.00, 10.0, 1719907200]],
+            },
+        )
+    )["activity_id"]
 
 
 def _create_segment(client, name="Test Segment"):
-    return assert_201(client.post("/segments", json={
-        "name": name,
-        "polyline": [[40.71, -74.00, 5.0, 1719907200]],
-        "distance_m": 1000.0,
-    }))["segment_id"]
+    return assert_201(
+        client.post(
+            "/segments",
+            json={
+                "name": name,
+                "polyline": [[40.71, -74.00, 5.0, 1719907200]],
+                "distance_m": 1000.0,
+            },
+        )
+    )["segment_id"]
 
 
 def _record_effort(client, activity_id, segment_id, user_id, elapsed_time):
-    return assert_201(client.post("/segment-efforts", json={
-        "activity_id": activity_id,
-        "segment_id": segment_id,
-        "user_id": user_id,
-        "elapsed_time": elapsed_time,
-    }))
+    return assert_201(
+        client.post(
+            "/segment-efforts",
+            json={
+                "activity_id": activity_id,
+                "segment_id": segment_id,
+                "user_id": user_id,
+                "elapsed_time": elapsed_time,
+            },
+        )
+    )
 
 
 def test_leaderboard_success(client):
@@ -52,9 +67,9 @@ def test_leaderboard_success(client):
     a2 = _create_activity(client, u2)
     a3 = _create_activity(client, u3)
 
-    _record_effort(client, a1, seg_id, u1, 310)   # 3rd
-    _record_effort(client, a2, seg_id, u2, 280)   # 1st
-    _record_effort(client, a3, seg_id, u3, 305)   # 2nd
+    _record_effort(client, a1, seg_id, u1, 310)  # 3rd
+    _record_effort(client, a2, seg_id, u2, 280)  # 1st
+    _record_effort(client, a3, seg_id, u3, 305)  # 2nd
 
     body = assert_json_200(client.get(f"/segments/{seg_id}/leaderboard?limit=10"))
     assert isinstance(body, list)

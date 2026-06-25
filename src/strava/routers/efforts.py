@@ -1,7 +1,5 @@
 """POST /segment-efforts — record a segment effort."""
 
-from uuid import UUID
-
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 

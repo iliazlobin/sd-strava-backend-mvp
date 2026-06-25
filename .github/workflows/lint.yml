@@ -4,7 +4,13 @@ on:
   push:
     branches: [main]
   pull_request:
-    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: lint-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   ruff:
@@ -13,7 +19,9 @@ jobs:
       - uses: actions/checkout@v4
       - uses: astral-sh/ruff-action@v3
         with:
-          args: "check"
+          version: "0.8.0"
+          args: "check --output-format=github"
       - uses: astral-sh/ruff-action@v3
         with:
-          args: "format --check"
+          version: "0.8.0"
+          args: "format --check --diff"

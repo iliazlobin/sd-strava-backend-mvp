@@ -1,7 +1,7 @@
 """SegmentEffort model — a timed effort on a specific segment."""
 
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from sqlalchemy import (
     CheckConstraint,
@@ -20,9 +20,7 @@ class SegmentEffort(Base):
     __tablename__ = "segment_efforts"
     __table_args__ = (
         CheckConstraint("elapsed_time > 0", name="ck_efforts_elapsed_time"),
-        UniqueConstraint(
-            "activity_id", "segment_id", name="uq_efforts_activity_segment"
-        ),
+        UniqueConstraint("activity_id", "segment_id", name="uq_efforts_activity_segment"),
     )
 
     effort_id: Mapped[uuid.UUID] = mapped_column(
@@ -41,5 +39,5 @@ class SegmentEffort(Base):
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         nullable=False,
-        default=lambda: datetime.now(timezone.utc),
+        default=lambda: datetime.now(UTC),
     )
