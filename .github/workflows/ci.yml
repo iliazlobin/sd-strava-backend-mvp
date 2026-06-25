@@ -4,6 +4,8 @@ on:
   push:
     branches: [main]
   pull_request:
+  schedule:
+    - cron: "17 13 * * *"  # daily e2e drift check (catches base-image / dependency drift with no code change)
 
 permissions:
   contents: read
