@@ -1,0 +1,50 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  unit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install dependencies
+        run: pip install -e ".[dev]"
+      - name: Run unit tests
+        run: pytest tests/
+
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Load manifest
+        run: |
+          set -a
+          source verify/manifest.env
+          set +a
+          echo "MANIFEST_APP_PORT=$APP_PORT" >> $GITHUB_ENV
+          echo "MANIFEST_HEALTH_URL=$HEALTH_URL" >> $GITHUB_ENV
+          echo "MANIFEST_API_BASE_URL=$API_BASE_URL" >> $GITHUB_ENV
+          echo "MANIFEST_UP_TIMEOUT=$UP_TIMEOUT" >> $GITHUB_ENV
+
+      - name: Start services
+        run: |
+          export APP_PORT=$MANIFEST_APP_PORT
+          docker compose up -d --wait
+
+      - name: Install test dependencies
+        run: pip install httpx pytest pytest-asyncio
+
+      - name: Run acceptance tests
+        run: API_BASE_URL=$MANIFEST_API_BASE_URL pytest verify/acceptance/
+
+      - name: Tear down
+        if: always()
+        run: docker compose down
